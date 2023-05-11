@@ -56,8 +56,9 @@ void setPins(){
     for(int i = 0; i < 8; i++){
         bcm2835_gpio_fsel(ALivre[i], BCM2835_GPIO_FSEL_OUTP);
         bcm2835_gpio_fsel(AOcup[i], BCM2835_GPIO_FSEL_OUTP);
-        bcm2835_gpio_fsel(lotado, BCM2835_GPIO_FSEL_OUTP);
     }
+    bcm2835_gpio_fsel(lotado, BCM2835_GPIO_FSEL_OUTP);
+
     // Motores das cancelas
     bcm2835_gpio_fsel(CancEntr, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(CancSai, BCM2835_GPIO_FSEL_OUTP);
@@ -67,40 +68,40 @@ void setPins(){
 void cancelaEntrada (int EntAbr, int EntFec){
     if(EntAbr == 1){
         bcm2835_gpio_write(CancEntr, HIGH);
-        EntAbr = 1;
-        EntFec = 0;
+      //  EntAbr = 1;
+       // EntFec = 0;
     }
     else if(EntFec == 1){
         bcm2835_gpio_write(CancEntr, LOW);
-        EntAbr = 0;
-        EntFec = 1;
+       // EntAbr = 0;
+       // EntFec = 1;
     }
 }
 // Ocupar vaga {Liga led Ocup e desliga livre}
 void ocupaVaga (int A[i], int i){
     bcm2835_gpio_write(AOcup, HIGH);
     bcm2835_gpio_write (ALivre, LOW);
-    A[i] = 1;
+   // A[i] = 1;
     vagasOcup++;
 }
 // Libera Vaga {Desliga led Ocup e liga livre}
 void liberaVaga (int A[i], int i){
     bcm2835_gpio_write(AOcup, LOW);
     bcm2835_gpio_write (ALivre, HIGH);
-    A[i] = 0;
+    //A[i] = 0;
     vagasOcup--;
 }
 // Sair
 void cancelaEntrada (int SaiAbr, int SaiFec){
     if(SaiAbr == 1){
         bcm2835_gpio_write(CancSai, HIGH);
-        SaiAbr = 1;
-        SaiFec = 0;
+        // SaiAbr = 1;
+        // SaiFec = 0;
     }
     else if(EntFec == 1){
         bcm2835_gpio_write(CancSai, LOW);
-        SaiAbr = 0;
-        SaiFec = 1;
+        // SaiAbr = 0;
+        // SaiFec = 1;
     }
 }
 // Lotado {Liga luz de lotado}
@@ -111,4 +112,16 @@ void andarLotado (int vagasOcup){
     else{
         bcm2835_gpio_write(lotado, LOW);
     }
+}
+
+int main(int argc, char **argv){
+    if (!bcm2835_init())
+	    return 1;
+
+    if(argc < 2){
+        printf("Precisa passar o arquivo a ser lido ao programa!\n");
+        exit(0);
+    }
+
+    
 }

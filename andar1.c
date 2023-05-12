@@ -12,24 +12,24 @@
 
 // Botão para simular a chegada de um carro = BEntrada
 // 8x Botão para remover carro = BRemove[8]
-// [ENTRADA] Sensor de presença p/Abrir {input} = EntAbr
-// [ENTRADA] Sensor de passagem p/Fechar {input} = EntFec
-// Motor cancela de entrada = CancEntr
-// Sinal de lotado {output} = lotado
 // Sensor de presença de cada vaga {input} = A[8]
 // 8x Sinal de vaga livre - led verde {output} = ALivre[8]
 // 8x Sinal de vaga ocupada - led vermelho {output} = AOcup[8]
-// [SAÍDA] Sensor de presença p/ Abrir {input} = SaiAbr
-// [SAÍDA] Sensor de passagem p/ Fechar {input} =SaiFec
-// Motor cancela de saída = CancSai
 
-int vagasOcup = 0, CancEntr = 0, CancSai = 0;
+int vagasOcup = 0;
+// ConfiguraPins
+int CancEntr = 10, //MOTOR_CANCELA_ENTRADA
+    CancSai = 17; //MOTOR_CANCELA_SAIDA
 // Sensores
-int A[8], EntAbr, EntFec, SaiAbr, SaiFec;
+int  EntAbr = 23,  //SENSOR_ABERTURA_CANCELA_ENTRADA
+    EntFec = 24, //SENSOR_FECHAMENTO_CANCELA_ENTRADA
+    SaiAbr = 25, //SENSOR_ABERTURA_CANCELA_SAIDA
+    SaiFec = 12; //SENSOR_FECHAMENTO_CANCELA_SAIDA
 //Botoes
 int BEntrada = 0, BRemove[8] =0;
 //Leds
-int ALivre[8] = 1, AOcup[8] = 0, lotado = 0,
+int ALivre[8] = 1, AOcup[8] = 0, 
+    lotado = 27;  //SINAL_DE_LOTADO_FECHADO
 
 void setPins(){
     // Define botões e configura entrada como Pull-down
@@ -64,45 +64,37 @@ void setPins(){
     bcm2835_gpio_fsel(CancSai, BCM2835_GPIO_FSEL_OUTP);
 }
 
-// Entrar
-void cancelaEntrada (int EntAbr, int EntFec){
-    if(EntAbr == 1){
-        bcm2835_gpio_write(CancEntr, HIGH);
-      //  EntAbr = 1;
-       // EntFec = 0;
-    }
-    else if(EntFec == 1){
+void abreCancelaEntrada (){
+    bcm2835_gpio_write(CancEntr, HIGH);
+    bcm2835_delay(800); // espera 500 ms
+    printf("Cancela Aberta\n");
+}
+void fechaCancelaEntrada(){
         bcm2835_gpio_write(CancEntr, LOW);
-       // EntAbr = 0;
-       // EntFec = 1;
-    }
+        bcm2835_delay(800); // espera 500 ms
+         printf("Cancela Fechada\n");
 }
 // Ocupar vaga {Liga led Ocup e desliga livre}
 void ocupaVaga (int A[i], int i){
     bcm2835_gpio_write(AOcup, HIGH);
     bcm2835_gpio_write (ALivre, LOW);
-   // A[i] = 1;
     vagasOcup++;
 }
 // Libera Vaga {Desliga led Ocup e liga livre}
 void liberaVaga (int A[i], int i){
     bcm2835_gpio_write(AOcup, LOW);
     bcm2835_gpio_write (ALivre, HIGH);
-    //A[i] = 0;
     vagasOcup--;
 }
-// Sair
-void cancelaEntrada (int SaiAbr, int SaiFec){
-    if(SaiAbr == 1){
-        bcm2835_gpio_write(CancSai, HIGH);
-        // SaiAbr = 1;
-        // SaiFec = 0;
-    }
-    else if(EntFec == 1){
-        bcm2835_gpio_write(CancSai, LOW);
-        // SaiAbr = 0;
-        // SaiFec = 1;
-    }
+void abreCancelaSaida (){
+    bcm2835_gpio_write(CancSai, HIGH);
+    bcm2835_delay(800); // espera 500 ms
+    printf("Cancela Aberta\n");
+}
+void fechaCancelaSaida(){
+    bcm2835_gpio_write(CancSai, LOW);
+    bcm2835_delay(800); // espera 500 ms
+    printf("Cancela Fechada\n");
 }
 // Lotado {Liga luz de lotado}
 void andarLotado (int vagasOcup){

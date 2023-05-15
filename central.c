@@ -3,7 +3,6 @@
 #include <stdlib.h>  
 #include <sys/socket.h> 
 #include <netinet/in.h> 
-//#include <pthread.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 
@@ -13,14 +12,9 @@
 #define SERVER_IP "164.41.98.15"
 #define SERVER_PORT 10131
 
-#define TRUE   1 
-#define FALSE  0
-#define TAXA 0.15 
-
 void interface(){
     int andar1 = 0, andar2 =0, total_carros=0; // Vagas ocupadas em cada andar e no estacionamento 
     int dispA, dispB;// Número de Vagas disponíveis em cada andar;
-    float tarifa, entrada, saida ///A taxa por minuto deve ser R$ 0,15 (quize centavos por minuto);
 
     while(1){
         //int resp1 = Repostas quantas vagas estão ocupadas no andar 1
@@ -44,7 +38,7 @@ void interface(){
     }
 }
 int menu(){
-    int comando
+    int comando;
     printf("Digite o número do procedimento desejado:\n ");
     printf("0. Sair\n");
     printf("1. Fechar Estacionamento\n");
@@ -59,6 +53,7 @@ int menu(){
 int main(){
     int valread;
     char buffer[1024] = {0};
+    char *message1, *message2;
 
     int server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket == -1) {
@@ -103,31 +98,31 @@ int main(){
         switch(comando){
             case 1:
                 //Enviar comando para o andar 1 Fechar o estacionamento
-                char *message1 = "1";
+                *message1 = "1";
                 send(client_socket1, message1, strlen(message1), 0);
             break;
             case 2:
                 //Enviar comando para o andar 2 ligar a luz de lotado 
-                char *message2 = "1";
+                *message2 = "1";
                 send(client_socket2, message2, strlen(message2), 0);
             break;
             case 3:
                 //Enviar comando para liberar o andar 2
-                char *message2 = "2";
+                *message2 = "2";
                 send(client_socket2, message2, strlen(message2), 0); 
             break;
             case 4:
                 //Enviar comando para abrir estacionamento
-                char *message1 = "2";
+                *message1 = "2";
                 send(client_socket1, message1, strlen(message1), 0); 
             break;
             case 5:
                 //Imprimir status das vagas
-                char *message1 = "3";
+                *message1 = "3";
                 send(client_socket1, message1, strlen(message1), 0);
                 //valread = recv(client_socket1, buffer, 1024, 0);
                 //printf("Vagas do andar 1: %s\n", buffer);
-                char *message2 = "3";
+                *message2 = "3";
                 send(client_socket2, message2, strlen(message2), 0);
                 //valread = recv(new_socket, buffer, 1024, 0);
                 //printf("Vagas do andar 2: %s\n", buffer);                                                                                                                                             

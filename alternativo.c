@@ -7,10 +7,6 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <pthread.h>
-// #include <semaphore.h>
-
-#define SERVER_IP "127.0.0.1"
-#define SERVER_PORT 10131
 
 int vagasOcup = 0;
 // ConfiguraPins
@@ -28,6 +24,15 @@ int ENDERECO_01 = 22, ENDERECO_02 = 26, ENDERECO_03 = 19;
 int SENSOR_DE_VAGA = 18,
     VAGA[8],  
     lotado = 27;  //SINAL_DE_LOTADO_FECHADO
+
+int vagasOcup2 = 0;
+
+int ENDERECO_01_B = 13, ENDERECO_02_B = 06, ENDERECO_03_B = 05;
+int SENSOR_DE_VAGA_2 = 20,
+    VAGA2[8],  
+    lotado2 = 08;  //SINAL_DE_LOTADO_FECHADO
+int SENSOR_DE_PASSAGEM_1 = 16, 
+    SENSOR_DE_PASSAGEM_2 = 21;
 
 void setPins(){
     // Define sensores e configura entradas com Pull-Down
@@ -52,6 +57,18 @@ void setPins(){
     // Motores das cancelas
     bcm2835_gpio_fsel(CancEntr, BCM2835_GPIO_FSEL_OUTP);
     bcm2835_gpio_fsel(CancSai, BCM2835_GPIO_FSEL_OUTP);
+
+    bcm2835_gpio_fsel(SENSOR_DE_VAGA_2, BCM2835_GPIO_FSEL_INPT);
+    bcm2835_gpio_set_pud(SENSOR_DE_VAGA_2, BCM2835_GPIO_PUD_DOWN);
+    bcm2835_gpio_fsel(SENSOR_DE_PASSAGEM_1, BCM2835_GPIO_FSEL_INPT);
+    bcm2835_gpio_set_pud(SENSOR_DE_PASSAGEM_1, BCM2835_GPIO_PUD_DOWN);
+    bcm2835_gpio_fsel(SENSOR_DE_PASSAGEM_2, BCM2835_GPIO_FSEL_INPT);
+    bcm2835_gpio_set_pud(SENSOR_DE_PASSAGEM_2, BCM2835_GPIO_PUD_DOWN);
+
+    bcm2835_gpio_fsel(ENDERECO_01_B, BCM2835_GPIO_FSEL_OUTP);
+    bcm2835_gpio_fsel(ENDERECO_02_B, BCM2835_GPIO_FSEL_OUTP);
+    bcm2835_gpio_fsel(ENDERECO_03_B, BCM2835_GPIO_FSEL_OUTP);
+    bcm2835_gpio_fsel(lotado2, BCM2835_GPIO_FSEL_OUTP);
 }
 
 void *andarLotado (int vagasOcup){
@@ -64,6 +81,17 @@ void *andarLotado (int vagasOcup){
         int disp = 8 - vagasOcup;
         bcm2835_gpio_write(lotado, LOW); // Desliga a luz de lotado
         printf("Quantidade de vagas livres no andar 1: %d\n", disp);
+    }
+}
+void *andarLotado2(int vagasOcup2){
+    if(vagasOcup2 == 7){
+        bcm2835_gpio_write(lotado2, HIGH);
+        printf("Andar 2 lotado\n");
+    }
+    else{
+        int disp = 8 -vagasOcup2;
+        bcm2835_gpio_write(lotado2, LOW);
+        printf("Quantidade de vagas livres no andar 2: %d\n", disp);
     }
 }
 
@@ -87,7 +115,7 @@ void *fechaCancelaEntrada(){
     }
 }
 
-int *lerVagas(){
+void *lerVagas(){
     while(1){
 
         printf("Iniciando leitura das vagas...\n");
@@ -145,7 +173,66 @@ int *lerVagas(){
             }
         }
         andarLotado(vagasOcup);
-        return vagasOcup;
+    }
+}
+void *lerVagas2(){
+    while(1){
+        printf("Iniciando leitura das vagas...\n");
+        bcm2835_gpio_write(ENDERECO_01_B, LOW);
+        bcm2835_gpio_write(ENDERECO_02_B, LOW);
+        bcm2835_gpio_write(ENDERECO_03_B, LOW);
+        VAGA2[0] = bcm2835_gpio_lev(SENSOR_DE_VAGA_2);
+
+        bcm2835_gpio_write(ENDERECO_01_B, HIGH);
+        bcm2835_gpio_write(ENDERECO_02_B, LOW);
+        bcm2835_gpio_write(ENDERECO_03_B, LOW);
+        VAGA2[1] = bcm2835_gpio_lev(SENSOR_DE_VAGA_2);
+
+        bcm2835_gpio_write(ENDERECO_01_B, LOW);
+        bcm2835_gpio_write(ENDERECO_02_B, HIGH);
+        bcm2835_gpio_write(ENDERECO_03_B, LOW);
+        VAGA2[2] = bcm2835_gpio_lev(SENSOR_DE_VAGA_2);
+
+        bcm2835_gpio_write(ENDERECO_01_B, HIGH);
+        bcm2835_gpio_write(ENDERECO_02_B, HIGH);
+        bcm2835_gpio_write(ENDERECO_03_B, LOW);
+        VAGA2[3] = bcm2835_gpio_lev(SENSOR_DE_VAGA_2);
+    
+        bcm2835_gpio_write(ENDERECO_01_B, LOW);
+        bcm2835_gpio_write(ENDERECO_02_B, LOW);
+        bcm2835_gpio_write(ENDERECO_03_B, HIGH);
+        VAGA2[4] = bcm2835_gpio_lev(SENSOR_DE_VAGA_2);
+
+        bcm2835_gpio_write(ENDERECO_01_B, HIGH);
+        bcm2835_gpio_write(ENDERECO_02_B, LOW);
+        bcm2835_gpio_write(ENDERECO_03_B, HIGH);
+        VAGA2[5] = bcm2835_gpio_lev(SENSOR_DE_VAGA_2);
+
+        bcm2835_gpio_write(ENDERECO_01_B, LOW);
+        bcm2835_gpio_write(ENDERECO_02_B, HIGH);
+        bcm2835_gpio_write(ENDERECO_03_B, HIGH);
+        VAGA2[6] = bcm2835_gpio_lev(SENSOR_DE_VAGA_2);
+
+        bcm2835_gpio_write(ENDERECO_01_B, HIGH);
+        bcm2835_gpio_write(ENDERECO_02_B, HIGH);
+        bcm2835_gpio_write(ENDERECO_03_B, HIGH);
+        VAGA2[7] = bcm2835_gpio_lev(SENSOR_DE_VAGA_2);
+
+        vagasOcup2 = 0;
+        for(int i = 0; i<8; i++){
+            if (VAGA2[i] == HIGH){
+                vagasOcup2++;
+            }
+            if(i==7){
+                printf("%d\n", VAGA2[i]);
+            }
+            else{
+                printf("%d, ", VAGA2[i]);
+            }
+        }
+        printf("Quantidade de vagas ocupadas no primeiro andar: %d\n", vagasOcup2);
+        printf("------------------------\n");
+        andarLotado2(vagasOcup2);
     }
 }
 
@@ -168,6 +255,10 @@ void fechaCancelaSaida(){
     }
 }
 void acao(string comando){
+    printf("Digite o comando desejado\n");
+    printf("1. Fechar estacionamento\n");
+    printf("2. Abrir estacionamento\n");
+    printf("3. Ler status das vagas\n");
 
     switch(comando){
         case 1:
@@ -179,13 +270,22 @@ void acao(string comando){
             printf("Andar 1 Aberto\n"); 
         break;
         case 3:
+            bcm2835_gpio_write(lotado2, HIGH);
+            printf("Andar 2 lotado\n");
+        break;
+        case 4:
+            bcm2835_gpio_write(lotado2, LOW);
+            printf("Andar 2 aberto\n");
+        break;
+        case 5:
             // registra data e hora da entrada;
             abreCancelaEntrada(); 
             bcm2835_delay(800); // espera 500 ms
             fechaCancelaEntrada();
             bcm2835_delay(800);                    
                 
-            int vagasO = lerVagas(); // imprimir vagas
+            lerVagas(); // imprimir vagas
+            lerVagas2();
 
             //calula valor a ser pago
             abreCancelaSaida();
@@ -201,51 +301,19 @@ int main(){
     }
     setPins();
 
-    pthread_t t_openEntrada, t_closeEntrada, t_openSaida, t_closeSaida, t_vagasLidas;
+    pthread_t t_openEntrada, t_closeEntrada, t_openSaida, t_closeSaida, t_vagasLidas, t_vagas2;
     
     pthread_create(&t_openEntrada,NULL,abreCancelaEntrada,NULL);
     pthread_create(&t_closeEntrada,NULL,fechaCancelaEntrada,NULL);
     pthread_create(&t_vagasLidas, NULL, lerVagas, NULL);
+    pthread_create(&t_vagas2, NULL, lerVagas2, NULL);
     pthread_create(&t_openSaida, NULL,abreCancelaSaida,NULL);
     pthread_create(&t_closeSaida,NULL, fechaCancelaSaida,NULL);
 
-    int client_socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (client_socket == -1) {
-        printf("Erro ao criar o socket\n");
-        return -1;
+    while(1){
+          acao();
     }
-    struct sockaddr_in server_address;
-    server_address.sin_family = AF_INET;
-    server_address.sin_addr.s_addr = inet_addr(SERVER_IP);
-    server_address.sin_port = htons(SERVER_PORT);
-
-    if (connect(client_socket, (struct sockaddr *)&server_address, sizeof(server_address)) == -1) {
-        printf("Erro ao conectar ao servidor\n");
-        close(client_socket);
-        return -1;
-    }
-
-    char buffer[1024];
-    int buffer_size = recv(client_socket, buffer, 1024, 0);
-    if (buffer_size == -1) {
-        printf("Erro ao receber a mensagem do servidor\n");
-        close(client_socket);
-        return -1;
-    }
-    buffer[buffer_size] = '\0';
-    //receber o comando e chamar a função responsável pela ação
-    int valor = atoi(buffer);
-    acao(valor);
-    //printf("Mensagem recebida do servidor: %s\n", buffer); 
-
-    pthread_join(t_openEntrada,NULL);
-    pthread_join(t_closeEntrada,NULL);
-   // pthread_join(t_vagasLidas,NULL);
-    pthread_join(t_openSaida,NULL);
-    pthread_join(t_closeSaida,NULL);
-
-    close(client_socket);
-
+  
     bcm2835_close();
     return 0;   
 }

@@ -7,150 +7,119 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-#define SERVER_IP "164.41.98.15"
+#define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 10131
 
-int vagasOcup = 0;
+int vagasOcup2 = 0;
 
-int ENDERECO_01 = 13, ENDERECO_02 = 06, ENDERECO_03 = 05;
-int SENSOR_DE_VAGA = 20,
-    VAGA[8],  
-    lotado = 08;  //SINAL_DE_LOTADO_FECHADO
+int ENDERECO_01_B = 13, ENDERECO_02_B = 06, ENDERECO_03_B = 05;
+int SENSOR_DE_VAGA_2 = 20,
+    VAGA2[8],  
+    lotado2 = 08;  //SINAL_DE_LOTADO_FECHADO
 int SENSOR_DE_PASSAGEM_1 = 16, 
     SENSOR_DE_PASSAGEM_2 = 21;
 
 void setPins(){
-    bcm2835_gpio_fsel(SENSOR_DE_VAGA, BCM2835_GPIO_FSEL_INPT);
-    bcm2835_gpio_set_pud(SENSOR_DE_VAGA, BCM2835_GPIO_PUD_DOWN);
+    bcm2835_gpio_fsel(SENSOR_DE_VAGA_2, BCM2835_GPIO_FSEL_INPT);
+    bcm2835_gpio_set_pud(SENSOR_DE_VAGA_2, BCM2835_GPIO_PUD_DOWN);
     bcm2835_gpio_fsel(SENSOR_DE_PASSAGEM_1, BCM2835_GPIO_FSEL_INPT);
     bcm2835_gpio_set_pud(SENSOR_DE_PASSAGEM_1, BCM2835_GPIO_PUD_DOWN);
     bcm2835_gpio_fsel(SENSOR_DE_PASSAGEM_2, BCM2835_GPIO_FSEL_INPT);
     bcm2835_gpio_set_pud(SENSOR_DE_PASSAGEM_2, BCM2835_GPIO_PUD_DOWN);
 
-    bcm2835_gpio_fsel(ENDERECO_01, BCM2835_GPIO_FSEL_OUTP);
-    bcm2835_gpio_fsel(ENDERECO_02, BCM2835_GPIO_FSEL_OUTP);
-    bcm2835_gpio_fsel(ENDERECO_03, BCM2835_GPIO_FSEL_OUTP);
-    bcm2835_gpio_fsel(lotado, BCM2835_GPIO_FSEL_OUTP);
+    bcm2835_gpio_fsel(ENDERECO_01_B, BCM2835_GPIO_FSEL_OUTP);
+    bcm2835_gpio_fsel(ENDERECO_02_B, BCM2835_GPIO_FSEL_OUTP);
+    bcm2835_gpio_fsel(ENDERECO_03_B, BCM2835_GPIO_FSEL_OUTP);
+    bcm2835_gpio_fsel(lotado2, BCM2835_GPIO_FSEL_OUTP);
 }
 
-void andarLotado(int vagasOcup){
-    if(vagasOcup == 7){
-        bcm2835_gpio_write(lotado, HIGH);
+void *andarLotado2(int vagasOcup2){
+    if(vagasOcup2 == 7){
+        bcm2835_gpio_write(lotado2, HIGH);
         printf("Andar 2 lotado\n");
     }
     else{
-        int disp = 8 -vagasOcup;
-        bcm2835_gpio_write(lotado, LOW);
+        int disp = 8 -vagasOcup2;
+        bcm2835_gpio_write(lotado2, LOW);
         printf("Quantidade de vagas livres no andar 2: %d\n", disp);
     }
 }
 
-void lerVagas(){
-    printf("Iniciando leitura das vagas...\n");
-    bcm2835_gpio_write(ENDERECO_01, LOW);
-    //printf("Envia ao endereço 1 (porta 13) o valor 0\n");
-    bcm2835_gpio_write(ENDERECO_02, LOW);
-    //printf("Envia ao endereço 2 (porta 06) o valor 0\n");
-    bcm2835_gpio_write(ENDERECO_03, LOW);
-    //printf("Envia ao endereço 3 (porta 05) o valor 0\n");
-    VAGA[0] = bcm2835_gpio_lev(SENSOR_DE_VAGA);
-    //printf("Vaga 1 : %d\n", VAGA[0]);
+void *lerVagas2(){
+    while(1){
+        printf("Iniciando leitura das vagas...\n");
+        bcm2835_gpio_write(ENDERECO_01_B, LOW);
+        bcm2835_gpio_write(ENDERECO_02_B, LOW);
+        bcm2835_gpio_write(ENDERECO_03_B, LOW);
+        VAGA2[0] = bcm2835_gpio_lev(SENSOR_DE_VAGA_2);
 
-    bcm2835_gpio_write(ENDERECO_01, HIGH);
-    //printf("Envia ao endereço 1 (porta 13) o valor 1"\n);
-    bcm2835_gpio_write(ENDERECO_02, LOW);
-    //printf("Envia ao endereço 2 (porta 06) o valor 0\n");
-    bcm2835_gpio_write(ENDERECO_03, LOW);
-    //printf("Envia ao endereço 3 (porta 05) o valor 0\n");
-    VAGA[1] = bcm2835_gpio_lev(SENSOR_DE_VAGA);
-    //printf("Vaga 2 : %d\n", VAGA[1]);
+        bcm2835_gpio_write(ENDERECO_01_B, HIGH);
+        bcm2835_gpio_write(ENDERECO_02_B, LOW);
+        bcm2835_gpio_write(ENDERECO_03_B, LOW);
+        VAGA2[1] = bcm2835_gpio_lev(SENSOR_DE_VAGA_2);
 
-    bcm2835_gpio_write(ENDERECO_01, LOW);
-    //printf("Envia ao endereço 1 (porta 13) o valor 0\n");
-    bcm2835_gpio_write(ENDERECO_02, HIGH);
-    //printf("Envia ao endereço 2 (porta 06) o valor 1\n");
-    bcm2835_gpio_write(ENDERECO_03, LOW);
-    //printf("Envia ao endereço 3 (porta 05) o valor 0\n");
-    VAGA[2] = bcm2835_gpio_lev(SENSOR_DE_VAGA);
-    //printf("Vaga 3 : %d\n", VAGA[2]);
+        bcm2835_gpio_write(ENDERECO_01_B, LOW);
+        bcm2835_gpio_write(ENDERECO_02_B, HIGH);
+        bcm2835_gpio_write(ENDERECO_03_B, LOW);
+        VAGA2[2] = bcm2835_gpio_lev(SENSOR_DE_VAGA_2);
 
-    bcm2835_gpio_write(ENDERECO_01, HIGH);
-    //printf("Envia ao endereço 1 (porta 13) o valor 1\n");
-    bcm2835_gpio_write(ENDERECO_02, HIGH);
-    //printf("Envia ao endereço 2 (porta 06) o valor 1\n");
-    bcm2835_gpio_write(ENDERECO_03, LOW);
-    //printf("Envia ao endereço 3 (porta 05) o valor 0\n");
-    VAGA[3] = bcm2835_gpio_lev(SENSOR_DE_VAGA);
-    //printf("Vaga 4 : %d\n", VAGA[3]);
+        bcm2835_gpio_write(ENDERECO_01_B, HIGH);
+        bcm2835_gpio_write(ENDERECO_02_B, HIGH);
+        bcm2835_gpio_write(ENDERECO_03_B, LOW);
+        VAGA2[3] = bcm2835_gpio_lev(SENSOR_DE_VAGA_2);
+    
+        bcm2835_gpio_write(ENDERECO_01_B, LOW);
+        bcm2835_gpio_write(ENDERECO_02_B, LOW);
+        bcm2835_gpio_write(ENDERECO_03_B, HIGH);
+        VAGA2[4] = bcm2835_gpio_lev(SENSOR_DE_VAGA_2);
 
-    bcm2835_gpio_write(ENDERECO_01, LOW);
-    //printf("Envia ao endereço 1 (porta 13) o valor 0\n");
-    bcm2835_gpio_write(ENDERECO_02, LOW);
-    //printf("Envia ao endereço 2 (porta 06) o valor 0\n");
-    bcm2835_gpio_write(ENDERECO_03, HIGH);
-    //printf("Envia ao endereço 3 (porta 05) o valor 1\n");
-    VAGA[4] = bcm2835_gpio_lev(SENSOR_DE_VAGA);
-    //printf("Vaga 5 : %d\n", VAGA[4]);
+        bcm2835_gpio_write(ENDERECO_01_B, HIGH);
+        bcm2835_gpio_write(ENDERECO_02_B, LOW);
+        bcm2835_gpio_write(ENDERECO_03_B, HIGH);
+        VAGA2[5] = bcm2835_gpio_lev(SENSOR_DE_VAGA_2);
 
-    bcm2835_gpio_write(ENDERECO_01, HIGH);
-    //printf("Envia ao endereço 1 (porta 13) o valor 1\n");
-    bcm2835_gpio_write(ENDERECO_02, LOW);
-    //printf("Envia ao endereço 2 (porta 06) o valor 0\n");
-    bcm2835_gpio_write(ENDERECO_03, HIGH);
-    //printf("Envia ao endereço 3 (porta 05) o valor 1\n");
-    VAGA[5] = bcm2835_gpio_lev(SENSOR_DE_VAGA);
-    //printf("Vaga 6 : %d\n", VAGA[5]);
+        bcm2835_gpio_write(ENDERECO_01_B, LOW);
+        bcm2835_gpio_write(ENDERECO_02_B, HIGH);
+        bcm2835_gpio_write(ENDERECO_03_B, HIGH);
+        VAGA2[6] = bcm2835_gpio_lev(SENSOR_DE_VAGA_2);
 
-    bcm2835_gpio_write(ENDERECO_01, LOW);
-    //printf("Envia ao endereço 1 (porta 13) o valor 0\n");
-    bcm2835_gpio_write(ENDERECO_02, HIGH);
-    //printf("Envia ao endereço 2 (porta 06) o valor 1\n");
-    bcm2835_gpio_write(ENDERECO_03, HIGH);
-    //printf("Envia ao endereço 3 (porta 05) o valor 1\n");
-    VAGA[6] = bcm2835_gpio_lev(SENSOR_DE_VAGA);
-    //printf("Vaga 7 : %d\n", VAGA[6]);
+        bcm2835_gpio_write(ENDERECO_01_B, HIGH);
+        bcm2835_gpio_write(ENDERECO_02_B, HIGH);
+        bcm2835_gpio_write(ENDERECO_03_B, HIGH);
+        VAGA2[7] = bcm2835_gpio_lev(SENSOR_DE_VAGA_2);
 
-    bcm2835_gpio_write(ENDERECO_01, HIGH);
-    //printf("Envia ao endereço 1 (porta 13) o valor 1\n");
-    bcm2835_gpio_write(ENDERECO_02, HIGH);
-    //printf("Envia ao endereço 2 (porta 06) o valor 1\n");
-    bcm2835_gpio_write(ENDERECO_03, HIGH);
-    //printf("Envia ao endereço 3 (porta 05) o valor 1\n");
-    VAGA[7] = bcm2835_gpio_lev(SENSOR_DE_VAGA);
-    //printf("Vaga 8 : %d\n", VAGA[7]);
-
-    vagasOcup = 0;
-    for(int i = 0; i<8; i++){
-        if (VAGA[i] == HIGH){
-            vagasOcup++;
+        vagasOcup2 = 0;
+        for(int i = 0; i<8; i++){
+            if (VAGA2[i] == HIGH){
+                vagasOcup2++;
+            }
+            if(i==7){
+                printf("%d\n", VAGA2[i]);
+            }
+            else{
+                printf("%d, ", VAGA2[i]);
+            }
         }
-        if(i==7){
-            printf("%d\n", VAGA[i]);
-        }
-        else{
-            printf("%d, ", VAGA[i]);
-        }
+        printf("Quantidade de vagas ocupadas no primeiro andar: %d\n", vagasOcup2);
+        printf("------------------------\n");
+        andarLotado2(vagasOcup2);
     }
-    printf("Quantidade de vagas ocupadas no primeiro andar: %d\n", vagasOcup);
-    printf("------------------------\n");
-    andarLotado(vagasOcup);
-
 }
 
 void menu(int comando){
 
     switch(comando){
         case 1:
-            bcm2835_gpio_write(lotado, HIGH);
+            bcm2835_gpio_write(lotado2, HIGH);
             printf("Andar 2 lotado\n");
         break;
         case 2:
-            bcm2835_gpio_write(lotado, LOW);
+            bcm2835_gpio_write(lotado2, LOW);
             printf("Andar 2 liberado\n");
 
         break;
         case 3:
-            lerVagas();
+            lerVagas2();
         break;
     }
 }
@@ -160,7 +129,7 @@ int main(){
 	    return 1;
     setPins();
     pthread_t t_vagas;
-    pthread_create(&t_vagasLidas, NULL, lerVagas, NULL);
+    pthread_create(&t_vagasLidas, NULL, lerVagas2, NULL);
 
 
     int client_socket2 = socket(AF_INET, SOCK_STREAM, 0);

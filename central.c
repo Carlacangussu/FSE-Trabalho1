@@ -9,7 +9,7 @@
 //#include <semaphore.h>
 //#include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros 
 
-#define SERVER_IP "164.41.98.15"
+#define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 10131
 
 void interface(){

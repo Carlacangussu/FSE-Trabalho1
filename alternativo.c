@@ -72,26 +72,25 @@ void setPins(){
 }
 
 void *andarLotado (int vagasOcup){
-    
-    if(vagasOcup >= 7){
+    int disp = 8 - vagasOcup;
+    //printf("Quantidade de vagas livres no andar 1: %d\n", disp);
+    if(disp == 0){
         bcm2835_gpio_write(lotado, HIGH); //liga a luz de lotado
         printf("Andar 1 lotado\n");
     }
-        else{
-        int disp = 8 - vagasOcup;
-        bcm2835_gpio_write(lotado, LOW); // Desliga a luz de lotado
-        printf("Quantidade de vagas livres no andar 1: %d\n", disp);
+    else{
+         bcm2835_gpio_write(lotado, LOW);
     }
 }
 void *andarLotado2(int vagasOcup2){
-    if(vagasOcup2 >= 7){
+   int disp = 8 - vagasOcup2;
+    //printf("Quantidade de vagas livres no andar 2: %d\n", disp);
+    if(disp == 0){
         bcm2835_gpio_write(lotado2, HIGH);
         printf("Andar 2 lotado\n");
     }
     else{
-        int disp = 8 -vagasOcup2;
         bcm2835_gpio_write(lotado2, LOW);
-        printf("Quantidade de vagas livres no andar 2: %d\n", disp);
     }
 }
 
@@ -112,58 +111,72 @@ void *abreCancelaEntrada (){
 }
 
 void *lerVagas(){
-   for (int address = 0; address <= 7; address++) {
-        // Configura os bits de endereço
-        bcm2835_gpio_write(ENDERECO_01, (address & 0x01)); // Bit 0 do endereço
-        bcm2835_gpio_write(ENDERECO_02, (address & 0x02) >> 1); // Bit 1 do endereço
-        bcm2835_gpio_write(ENDERECO_03, (address & 0x04) >> 2); // Bit 2 do endereço
+    while(1){
+    for (int address = 0; address <= 7; address++) {
+            // Configura os bits de endereço
+            bcm2835_gpio_write(ENDERECO_01, (address & 0x01)); // Bit 0 do endereço
+            bcm2835_gpio_write(ENDERECO_02, (address & 0x02) >> 1); // Bit 1 do endereço
+            bcm2835_gpio_write(ENDERECO_03, (address & 0x04) >> 2); // Bit 2 do endereço
 
-        // Lê o valor do sensor
-        VAGA[address] = bcm2835_gpio_lev(SENSOR_DE_VAGA);
+            // Lê o valor do sensor
+            VAGA[address] = bcm2835_gpio_lev(SENSOR_DE_VAGA);
 
-        // Imprime o valor do sensor para o endereço atual
-        //printf("Endereço: %d, Valor do sensor: %d\n", address, VAGA[address]);
-
-        // Aguarda um tempo antes de passar para o próximo endereço
-        bcm2835_delay(1000); // 1 segundo
+            // Aguarda um tempo antes de passar para o próximo endereço
+            bcm2835_delay(1000); // 1 segundo
+        }
+        vagasOcup = 0;
+        for(int i = 0; i<8; i++){
+            if (VAGA[i] == 1){
+                vagasOcup++;
+            }
+        }
+        andarLotado(vagasOcup);
     }
-    vagasOcup = 0;
-    printf("Andar 1: ");
-    for(int i = 0; i<8; i++){
-        if (VAGA[i] == 1){
-            vagasOcup++;
-        }
-        if(i==7){
-            printf("%d\n", VAGA[i]);
-        }
-        else{
-            printf("%d, ", VAGA[i]);
-        }
-    }
-    andarLotado(vagasOcup);
 }
 void *lerVagas2(){
-    for (int address = 0; address <= 7; address++) {
-        // Configura os bits de endereço
-        bcm2835_gpio_write(ENDERECO_01_B, (address & 0x01)); // Bit 0 do endereço
-        bcm2835_gpio_write(ENDERECO_02_B, (address & 0x02) >> 1); // Bit 1 do endereço
-        bcm2835_gpio_write(ENDERECO_03_B, (address & 0x04) >> 2); // Bit 2 do endereço
+    while(1){
+        for (int address = 0; address <= 7; address++) {
+            // Configura os bits de endereço
+            bcm2835_gpio_write(ENDERECO_01_B, (address & 0x01)); // Bit 0 do endereço
+            bcm2835_gpio_write(ENDERECO_02_B, (address & 0x02) >> 1); // Bit 1 do endereço
+            bcm2835_gpio_write(ENDERECO_03_B, (address & 0x04) >> 2); // Bit 2 do endereço
 
-        // Lê o valor do sensor
-        VAGA2[address] = bcm2835_gpio_lev(SENSOR_DE_VAGA_2);
+            // Lê o valor do sensor
+            VAGA2[address] = bcm2835_gpio_lev(SENSOR_DE_VAGA_2);
 
-        // Imprime o valor do sensor para o endereço atual
-       // printf("Endereço: %d, Valor do sensor: %d\n", address, VAGA2[address]);
-
-        // Aguarda um tempo antes de passar para o próximo endereço
-        bcm2835_delay(1000); // 1 segundo
-    }
+            // Aguarda um tempo antes de passar para o próximo endereço
+            bcm2835_delay(1000); // 1 segundo
+        }
 
         vagasOcup2 = 0;
         for(int i = 0; i<8; i++){
             if (VAGA2[i] == 1){
-                vagasOcup2++;
+            vagasOcup2++;
             }
+        }
+        andarLotado2(vagasOcup2);
+    }
+}
+int *imprimeVagas(){
+    printf("Andar 1: ");
+        for(int i = 0; i<8; i++){
+            if(i==7){
+                printf("%d\n", VAGA[i]);
+            }
+            else{
+                printf("%d, ", VAGA[i]);
+            }
+        }
+        printf("Quantidade de vagas ocupadas no primeiro andar: %d\n", vagasOcup);
+        int disp = 8 - vagasOcup;
+        printf("Quantidade de vagas livres no andar 1: %d\n", disp);
+        printf("------------------------\n");
+        return vagasOcup;
+}
+
+int *imprimeVagas2(){
+    printf("Andar 2: ");
+        for(int i = 0; i<8; i++){
             if(i==7){
                 printf("%d\n", VAGA2[i]);
             }
@@ -171,9 +184,11 @@ void *lerVagas2(){
                 printf("%d, ", VAGA2[i]);
             }
         }
-        printf("Quantidade de vagas ocupadas no primeiro andar: %d\n", vagasOcup2+1);
+        printf("Quantidade de vagas ocupadas no segundo andar: %d\n", vagasOcup2);
+        int disp = 8 - vagasOcup2;
+        printf("Quantidade de vagas livres no andar 2: %d\n", disp);
         printf("------------------------\n");
-        andarLotado2(vagasOcup2);
+        return vagasOcup2;
 }
 
 void *abreCancelaSaida (){
@@ -191,7 +206,7 @@ void *abreCancelaSaida (){
     }
 }
 void acao(){
-    int comando;
+    int comando, vagas1, vagas2;
     printf("Digite o comando desejado\n");
     printf("1. Fechar estacionamento\n");
     printf("2. Abrir estacionamento\n");
@@ -219,8 +234,10 @@ void acao(){
         break;
         case 5:
                               
-            lerVagas(); 
-            lerVagas2();
+            vagas1 = imprimeVagas(); 
+            vagas2 = imprimeVagas2();
+            int vagas_total = vagas1 + vagas2;
+            printf("Total de vagas ocupadas: %d\n", vagas_total);
 
         break;
     }
@@ -231,9 +248,11 @@ int main(){
     }
     setPins();
 
-    pthread_t t_openEntrada,t_openSaida;     
+    pthread_t t_openEntrada,t_openSaida, t_lerVagas1, t_lerVagas2;     
     pthread_create(&t_openEntrada,NULL,abreCancelaEntrada,NULL);
-    pthread_create(&t_openSaida, NULL,abreCancelaSaida,NULL);
+    pthread_create(&t_lerVagas1, NULL,lerVagas,NULL);
+    pthread_create(&t_openSaida, NULL,lerVagas2,NULL);
+    pthread_create(&t_openSaida,NULL,abreCancelaEntrada,NULL);;
 
     while(1){
           acao();

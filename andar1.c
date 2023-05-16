@@ -7,13 +7,12 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <pthread.h>
-// #include <semaphore.h>
 
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 10131
 
 int vagasOcup = 0;
-// ConfiguraPins
+
 int CancEntr = 10, //MOTOR_CANCELA_ENTRADA
     CancSai = 17; //MOTOR_CANCELA_SAIDA
 // Sensores
@@ -74,6 +73,11 @@ void *abreCancelaEntrada (){
             bcm2835_gpio_write(CancEntr, HIGH);
             bcm2835_delay(800); // espera 500 ms
             printf("Cancela de entrada aberta\n");
+        }
+        if(bcm2835_gpio_lev(EntFec)){
+            bcm2835_gpio_write(CancEntr, LOW);
+            bcm2835_delay(800); // espera 500 ms         
+            printf("Cancela de entrada Fechada\n");
         }
     }
 }
@@ -149,13 +153,18 @@ int *lerVagas(){
     }
 }
 
-void abreCancelaSaida (){
+void *abreCancelaSaida (){
     while(1){
         if(bcm2835_gpio_lev(SaiAbr)){
             bcm2835_gpio_write(CancSai, HIGH);
             bcm2835_delay(800); // espera 500 ms
             printf("Cancela de saida aberta\n");
         }
+        if(bcm2835_gpio_lev(SaiFec)){
+            bcm2835_gpio_write(CancSai, LOW);
+            bcm2835_delay(800); // espera 500 ms
+            printf("Cancela de sai Fechada\n");
+       }
     }
 }
 void fechaCancelaSaida(){
@@ -167,7 +176,7 @@ void fechaCancelaSaida(){
        }
     }
 }
-void acao(string comando){
+void acao(int comando){
 
     switch(comando){
         case 1:
@@ -204,10 +213,10 @@ int main(){
     pthread_t t_openEntrada, t_closeEntrada, t_openSaida, t_closeSaida, t_vagasLidas;
     
     pthread_create(&t_openEntrada,NULL,abreCancelaEntrada,NULL);
-    pthread_create(&t_closeEntrada,NULL,fechaCancelaEntrada,NULL);
-    pthread_create(&t_vagasLidas, NULL, lerVagas, NULL);
+   // pthread_create(&t_closeEntrada,NULL,fechaCancelaEntrada,NULL);
+  //  pthread_create(&t_vagasLidas, NULL, lerVagas, NULL);
     pthread_create(&t_openSaida, NULL,abreCancelaSaida,NULL);
-    pthread_create(&t_closeSaida,NULL, fechaCancelaSaida,NULL);
+  //  pthread_create(&t_closeSaida,NULL, fechaCancelaSaida,NULL);
 
     int client_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (client_socket == -1) {
@@ -239,10 +248,10 @@ int main(){
     //printf("Mensagem recebida do servidor: %s\n", buffer); 
 
     pthread_join(t_openEntrada,NULL);
-    pthread_join(t_closeEntrada,NULL);
+   // pthread_join(t_closeEntrada,NULL);
    // pthread_join(t_vagasLidas,NULL);
     pthread_join(t_openSaida,NULL);
-    pthread_join(t_closeSaida,NULL);
+   // pthread_join(t_closeSaida,NULL);
 
     close(client_socket);
 

@@ -251,7 +251,7 @@ int main(){
     pthread_t t_openEntrada,t_openSaida, t_lerVagas1, t_lerVagas2;     
     pthread_create(&t_openEntrada,NULL,abreCancelaEntrada,NULL);
     pthread_create(&t_lerVagas1, NULL,lerVagas,NULL);
-    pthread_create(&t_openSaida, NULL,lerVagas2,NULL);
+    pthread_create(&t_lerVagas2, NULL,lerVagas2,NULL);
     pthread_create(&t_openSaida,NULL,abreCancelaEntrada,NULL);;
 
     while(1){
